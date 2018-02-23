@@ -41,7 +41,7 @@ function logger() {
         '":user-agent" :referrer :req[cf-ray] :req[accept-encoding]\\n:request-all\\n\\n:response-all\\n');
 }
 
-var port = process.argv[2];
+var port = 8080;
 var express = require("express");
 var app = express();
 
