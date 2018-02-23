@@ -1,7 +1,7 @@
 .DS_Store
 .idea
-node_modules
-target
-scratch
-private
-*.iml
+application/node_modules
+application/target
+application/scratch
+application/private
+application/*.iml

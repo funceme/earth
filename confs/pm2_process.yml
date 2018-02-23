@@ -1,0 +1,4 @@
+apps:
+  - script   : 'dev-server.js'
+    name     : 'earth-app'
+    env_     : {“NODE_ENV”: “production”, “ID”: “89”}
