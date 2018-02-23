@@ -1,0 +1,35 @@
+ apiVersion: extensions/v1beta1
+ kind: Deployment
+ metadata:
+   name: nullschool-dpt-prod
+ spec:
+   replicas: 1
+   template:
+     metadata:
+       labels:
+         app: nullschool-app
+     spec:
+       containers:
+       - name: nullschool-con
+         image: dkhub.funceme.br:444/web/nullschool:dev
+         imagePullPolicy: Always
+         ports:
+         - name: api-port80
+           containerPort: 80
+       imagePullSecrets:
+       - name: dkhub.funceme.br-registry-secret
+#       #nodeSelector:
+#         #hardware: develop
+ ---
+ apiVersion: v1
+ kind: Service
+ metadata:
+   name: svc-nullschool
+ spec:
+   selector:
+     app: nullschool-app
+   ports:
+     - name: api-port80
+       protocol: TCP
+       port: 80
+       targetPort: 80

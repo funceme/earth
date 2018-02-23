@@ -1,0 +1,73 @@
+variables:
+  REGISTRY_HOST: "dkhub.funceme.br:444"
+  TAGPROD: "latest"
+  TAGDEV: "develop"
+  TAGTEST: "test"
+
+stages:
+  - build_master
+  - build_develop
+  - build_test
+  - deploy_kube_master
+  - deploy_kube_test
+
+build_master:
+  stage: build_master
+  image: docker:latest
+  script:
+    - docker login -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD $REGISTRY_HOST
+    - docker build -t $REGISTRY_HOST/$CI_PROJECT_PATH:$TAGPROD .
+    - docker push $REGISTRY_HOST/$CI_PROJECT_PATH:$TAGPROD
+  only:
+    - master
+
+
+build_develop:
+  stage: build_develop
+  image: docker:latest
+  script:
+    - docker login -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD $REGISTRY_HOST
+    - docker build -t $REGISTRY_HOST/$CI_PROJECT_PATH:$TAGDEV .
+    - docker push $REGISTRY_HOST/$CI_PROJECT_PATH:$TAGDEV
+  only:
+    - develop
+
+build_test:
+  stage: build_test
+  image: docker:latest
+  script:
+    - docker login -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD $REGISTRY_HOST
+    - docker build -t $REGISTRY_HOST/$CI_PROJECT_PATH:$TAGTEST .
+    - docker push $REGISTRY_HOST/$CI_PROJECT_PATH:$TAGTEST
+  only:
+    - test
+
+deploy_kube_master:
+  stage: deploy_kube_master
+  image: dkhub.funceme.br:444/devops/kubernetes-deploy
+  variables:
+    KUBE_DOMAIN: funceme.br
+    CI_ENVIRONMENT_URL: http://$CI_PROJECT_NAME.$KUBE_DOMAIN
+  script:
+    - command deploy_master
+  environment:
+    name: production
+    url: http://$CI_PROJECT_NAME.$KUBE_DOMAIN
+  when: manual
+  only:
+    - master
+
+deploy_kube_test:
+  stage: deploy_kube_test
+  image: dkhub.funceme.br:444/devops/kubernetes-deploy
+  variables:
+    KUBE_DOMAIN: funceme.br
+    CI_ENVIRONMENT_URL: http://$CI_PROJECT_NAME.$KUBE_DOMAIN
+  script:
+    - command deploy_test
+  environment:
+    name: develop
+    url: http://$CI_PROJECT_NAME.$KUBE_DOMAIN
+  when: manual
+  only:
+    - test
